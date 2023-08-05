@@ -3,22 +3,33 @@ import { AdminEntity } from "./admin.entity";
 
 export class AdminValue implements AdminEntity {
   uuid: string;
-  name: string;
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  accessToken?: string | undefined;
+  createdAt?: Date | undefined;
+  updatedAt?: Date | undefined;
 
   constructor({
-    name,
     email,
     password,
-  }: {
-    name: string;
-    email: string;
-    password: string;
-  }) {
+    firstName,
+    lastName,
+    accessToken,
+    createdAt,
+    updatedAt,
+  }: Omit<
+    AdminEntity,
+    "uuid" | "forgotPasswordAccessToken" | "forgotPasswordExpiresIn"
+  >) {
     this.uuid = uuid();
-    this.name = name;
     this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.password = password;
+    this.accessToken = accessToken;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 }
