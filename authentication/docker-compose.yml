@@ -1,0 +1,23 @@
+version: '3'
+services:
+  # Node.js app
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./service_authentication:/service_authentication
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - db
+
+  # PostgreSQL database
+  db:
+    image: postgres:latest
+    ports:
+     - 5432
+    environment:
+      POSTGRES_DB: probet_authentication
+      POSTGRES_USER: probet
+      POSTGRES_PASSWORD: probet
