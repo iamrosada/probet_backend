@@ -10,3 +10,8 @@ export interface AdminEntity {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface ForgotPasswordResponse {
+  accessToken: number;
+  expiresIn: Date;
+}
