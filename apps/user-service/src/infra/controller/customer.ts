@@ -18,6 +18,51 @@ export class CustomerController {
 
     return customer;
   }
+
+  public async authCtrl(password: string, numberPhone: string) {
+    const customer = await this.customerUseCase.AuthCustomerForLongPeriodBet(
+      {
+        password,
+        numberPhone
+      }
+
+    );
+
+    return customer;
+  }
+
+  public async authExpireIn24Ctrl(numberPhone: string) {
+    const customer = await this.customerUseCase.AuthCustomerAndExpireAfterBet(
+      {
+        numberPhone
+      }
+
+    );
+
+    return customer;
+  }
+
+  public async FindByDateCtrl(createdAt: Date) {
+    const customer = await this.customerUseCase.getCustomerByDate(
+      createdAt
+    );
+
+    return customer;
+  }
+
+  public async FindByIdCtrl(uuid: string) {
+    const customer = await this.customerUseCase.getDetailCustomer(
+      uuid
+    );
+
+    return customer;
+  }
+
+  public async FindAllCustomerCtrl() {
+    const customer = await this.customerUseCase.getListOfAllCustomer();
+
+    return customer;
+  }
 }
 
 type Input = {
