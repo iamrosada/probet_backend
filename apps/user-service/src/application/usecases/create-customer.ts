@@ -81,16 +81,3 @@ export class CustomerUseCase {
   };
 }
 
-type InputExpireIn24Speed = {
-  numberPhone: string;
-}
-
-
-type InputCustomerAuth = {
-
-  numberPhone: string;
-  password: string;
-}
-type InputExpireIn24SpeedAuth = {
-  numberPhone: string;
-}
