@@ -21,6 +21,7 @@ export class CustomerValue implements CustomerEntity {
     CustomerEntity,
     "uuid"
   >) {
+    //@ts-ignore
     this.uuid = uuid();
     this.firstName = firstName;
     this.lastName = lastName;
