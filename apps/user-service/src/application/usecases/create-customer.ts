@@ -50,18 +50,34 @@ export class CustomerUseCase {
   };
 
   public registerCustomerAndExpireAfterBet = async (input: InputExpireIn24Speed) => {
+    let customerExist = await this.customerRepository.findByNumberPhone(input.numberPhone)
+
+    if (!customerExist) {
     const customer = await this.customerRepository.createCustomerFor24h(input);
     return customer;
+    }
   };
 
   public AuthCustomerAndExpireAfterBet = async (input: InputExpireIn24SpeedAuth) => {
-    const customer = await this.customerRepository.authExpireIn24(input);
-    return customer;
+
+    let customerExist = await this.customerRepository.findByNumberPhone(input.numberPhone)
+
+    if (!customerExist) {
+      const customer = await this.customerRepository.authExpireIn24(input);
+      return customer;
+    }
+
+
   };
 
   public AuthCustomerForLongPeriodBet = async (input: InputCustomerAuth) => {
-    const customer = await this.customerRepository.auth(input);
-    return customer;
+    let customerExist = await this.customerRepository.findByNumberPhone(input.numberPhone)
+
+    if (!customerExist) {
+      const customer = await this.customerRepository.auth(input);
+      return customer;
+    }
+
   };
 }
 
