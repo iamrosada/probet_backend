@@ -20,6 +20,7 @@ export class AdminValue implements AdminEntity {
     AdminEntity,
     "uuid"
   >) {
+    //@ts-ignore
     this.uuid = uuid();
     this.password = password;
     this.email = email;
