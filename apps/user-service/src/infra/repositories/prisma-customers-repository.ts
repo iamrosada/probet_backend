@@ -1,4 +1,3 @@
-import { verify, sign } from "jsonwebtoken";
 import { CustomerRepository } from "../../application/repositories/customer-repository";
 import { CustomerEntity, CustomerEntitySpeed } from "../../domain/customer-entity/customer";
 import { prisma } from "../database/prisma/prisma";
@@ -6,25 +5,31 @@ import { createAccessToken } from "../core/auth-global-core";
 
 export class PrismaCustomersRepository implements CustomerRepository {
   authExpireIn24(customer: { numberPhone: string; }): Promise<{ accessToken: string }> {
-    const accessToken = createAccessToken(customer)
-
-    return accessToken
+    try {
+      const accessToken = createAccessToken(customer);
+      return Promise.resolve({ accessToken });
+    } catch (error) {
+      throw new Error('Erro ao autenticar o cliente: ' + error.message);
+    }
   }
 
   auth(customer: { numberPhone: string; password: string; }): Promise<{ accessToken: string }> {
 
-    const accessToken = createAccessToken(customer)
-
-    return accessToken
+    try {
+      const accessToken = createAccessToken(customer);
+      return Promise.resolve({ accessToken });
+    } catch (error) {
+      throw new Error('Erro ao autenticar o cliente: ' + error.message);
+    }
 
   }
   async list(): Promise<null | CustomerEntity[]> {
     return await prisma.customer.findMany({});
   }
 
-  async findCustomerById(id: string): Promise<null | CustomerEntity> {
+  async findCustomerById(uuid: string): Promise<null | CustomerEntity> {
     const customer = await prisma.customer.findUnique({
-      where: { id },
+      where: { uuid },
     })
 
     if (!customer) {
@@ -33,10 +38,12 @@ export class PrismaCustomersRepository implements CustomerRepository {
 
     return customer
   }
+
 
   async findCustomerByDateCreation(createdAt: Date): Promise<null | CustomerEntity> {
     const customer = await prisma.customer.findUnique({
-      where: { createdAt },
+      //@ts-ignore
+      where: { createdAt: createdAt }
     })
 
     if (!customer) {
@@ -47,9 +54,9 @@ export class PrismaCustomersRepository implements CustomerRepository {
   }
 
 
-  async findByNumberPhone(phone: string): Promise<CustomerEntity | null> {
+  async findByNumberPhone(numberPhone: string): Promise<CustomerEntity | null> {
     const customer = await prisma.customer.findUnique({
-      where: { phone },
+      where: { numberPhone },
     })
 
     if (!customer) {
@@ -60,29 +67,32 @@ export class PrismaCustomersRepository implements CustomerRepository {
   }
 
   async createCustomerFor24h(customer: CustomerEntitySpeed): Promise<void> {
-    await prisma.customer.create({
+    await prisma.customerOnlyOneBet.create({
       data: {
         uuid: customer.uuid,
         numberPhone: customer.numberPhone,
-        createdAt: customer.createdAt,
-        updatedAt: customer.updatedAt
+
       }
     })
 
   }
 
 
-  async create(customer: CustomerEntity) {
-    await prisma.customer.create({
+  async create(customer: CustomerEntity): Promise<CustomerEntity> {
+    console.info(customer)
+    const customerCreated = await prisma.customer.create({
       data: {
-        uui: customer.uuid,
+        uuid: customer.uuid,
         password: customer.password,
         firstName: customer.firstName,
         lastName: customer.lastName,
-        numberPhone: customer.numberPhone,
+        numberPhone: customer.numberPhone, 
         createdAt: customer.createdAt,
         updatedAt: customer.updatedAt
+
       }
     })
+
+    return customerCreated
   }
 }
