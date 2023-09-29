@@ -1,4 +1,6 @@
 import { CustomerUseCase } from '../../application/usecases/create-customer';
+import { InputCustomerAuth } from '../../interfaces';
+import { Password } from '../core/password-hash';
 
 export class CustomerController {
   constructor(private customerUseCase: CustomerUseCase) {
@@ -34,18 +36,40 @@ export class CustomerController {
     }
   }
 
-  public async authCtrl(password: string, numberPhone: string) {
-    try {
-      const customer = await this.customerUseCase.AuthCustomerForLongPeriodBet({
-        password,
-        numberPhone,
-      });
+  public async authCtrl(input: InputCustomerAuth) {
 
-      return customer;
-    } catch (error) {
-      // Trate o erro de forma apropriada, como retornar uma resposta de erro HTTP.
-      throw new Error('Erro na autenticação: ' + error.message);
+    const customerAlreadyExist = await this.FindCustomerByPhoneNumberCtrl(input.numberPhone)
+    if (customerAlreadyExist) {
+
+      const isPasswordValid = await Password.comparePassword(customerAlreadyExist.password, input.password);
+      console.info(isPasswordValid, "out side")
+
+
+      if (isPasswordValid) {
+        console.info(isPasswordValid, "inside")
+        try {
+
+          const customer = await this.customerUseCase.AuthCustomerForLongPeriodBet(
+            input.password,
+            input.numberPhone
+          );
+          console.log('Password is valid. User authenticated.');
+
+          return customer;
+        } catch (error) {
+          // Trate o erro de forma apropriada, como retornar uma resposta de erro HTTP.
+          throw new Error('Erro na autenticação: ' + error.message);
+        }
+      } else {
+        throw new Error('Password is not valid. Authentication failed. ');
+      }
+
+
+    } else if (!customerAlreadyExist) {
+      throw new Error('Error Customer Not Exist ');
     }
+
+
   }
 
   public async authExpireIn24Ctrl(numberPhone: string) {
