@@ -1,23 +1,28 @@
 import { CustomerRepository } from "../../application/repositories/customer-repository";
 import { CustomerEntity, CustomerEntitySpeed } from "../../domain/customer-entity/customer";
 import { prisma } from "../database/prisma/prisma";
-import { createAccessToken } from "../core/auth-global-core";
+import { PayloadCustomer, TokenService } from "../core/auth-global-core";
 import { Password } from '../core/password-hash'
+import { InputCustomerAuth, InputExpireIn24SpeedAuth, OutPutCustomerAuth } from "../../interfaces";
 
 export class PrismaCustomersRepository implements CustomerRepository {
-  authExpireIn24(customer: { numberPhone: string; }): Promise<{ accessToken: string }> {
+  authExpireIn24(customer: InputExpireIn24SpeedAuth): Promise<OutPutCustomerAuth> {
     try {
-      const accessToken = createAccessToken(customer);
+      const tokenService = new TokenService();
+      const customerPayload: PayloadCustomer = { numberPhone: customer.numberPhone };
+      const accessToken = tokenService.createAccessToken(customerPayload, { expiresIn: '1h' });
       return Promise.resolve({ accessToken });
     } catch (error) {
       throw new Error('Erro ao autenticar o cliente: ' + error.message);
     }
   }
 
-  auth(customer: { numberPhone: string; password: string; }): Promise<{ accessToken: string }> {
+  auth(customer: InputCustomerAuth): Promise<OutPutCustomerAuth> {
 
     try {
-      const accessToken = createAccessToken(customer);
+      const tokenService = new TokenService();
+      const customerPayload: PayloadCustomer = { numberPhone: customer.numberPhone };
+      const accessToken = tokenService.createAccessToken(customerPayload, { expiresIn: '1h' });
       return Promise.resolve({ accessToken });
     } catch (error) {
       throw new Error('Erro ao autenticar o cliente: ' + error.message);
