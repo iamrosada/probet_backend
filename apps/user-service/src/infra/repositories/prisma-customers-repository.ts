@@ -2,6 +2,7 @@ import { CustomerRepository } from "../../application/repositories/customer-repo
 import { CustomerEntity, CustomerEntitySpeed } from "../../domain/customer-entity/customer";
 import { prisma } from "../database/prisma/prisma";
 import { createAccessToken } from "../core/auth-global-core";
+import { Password } from '../core/password-hash'
 
 export class PrismaCustomersRepository implements CustomerRepository {
   authExpireIn24(customer: { numberPhone: string; }): Promise<{ accessToken: string }> {
@@ -80,10 +81,12 @@ export class PrismaCustomersRepository implements CustomerRepository {
 
   async create(customer: CustomerEntity): Promise<CustomerEntity> {
     console.info(customer)
+    const storedPasswordHash = await Password.hashPassword(customer.password);
+
     const customerCreated = await prisma.customer.create({
       data: {
         uuid: customer.uuid,
-        password: customer.password,
+        password: storedPasswordHash,
         firstName: customer.firstName,
         lastName: customer.lastName,
         numberPhone: customer.numberPhone, 
