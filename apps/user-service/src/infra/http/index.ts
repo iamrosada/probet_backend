@@ -12,7 +12,20 @@ function errorHandler(err: Error, req: Request, res: Response, next: any) {
 
 export default function runServer() {
   const router = express.Router();
+  router.post('/login', async (req: Request, res: Response) => {
+    try {
+      // Validate input data here if needed.
 
+      const adminAuthResult = await adminCtrl.authCtrl({
+        email: req.body.email,
+        password: req.body.password,
+      });
+
+      res.status(200).json(adminAuthResult);
+    } catch (error) {
+      next(error); // Pass the error to the error handling middleware
+    }
+  });
   // User registration route
   router.post('/register', async (req: Request, res: Response) => {
     try {
@@ -172,21 +185,31 @@ export default function runServer() {
     }
   });
 
-  // Login route
-  router.post('/login', async (req: Request, res: Response) => {
+  router.get('/:id', async (req, res, next) => {
     try {
-      // Validate input data here if needed.
+      const userId = req.params.id; // Access the ID from the route parameters
+      const user = await customerCtrl.FindByIdCtrl(userId);
 
-      const adminAuthResult = await adminCtrl.authCtrl({
-        email: req.body.email,
-        password: req.body.password,
+      if (!user) {
+        // Handle the case where the user is not found
+        return res.status(404).json({
+          message: "Customer not found",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Got customer by ID with success",
+        user: user,
       });
-
-      res.status(200).json(adminAuthResult);
     } catch (error) {
       next(error); // Pass the error to the error handling middleware
+      console.log(error.message);
     }
   });
+
+
+  // Login route
+
 
   // Add the router and error handling middleware to the app
   app.use('/', router);
