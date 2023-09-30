@@ -3,7 +3,7 @@
 
 generator client {
   provider      = "prisma-client-js"
- 
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -12,25 +12,30 @@ datasource db {
 }
 
 model Customer {
- uuid String  @id @unique
+  uuid String  @id @unique 
   firstName String
   lastName String
-  numberPhone String
+  numberPhone String @unique
   password String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now())
+  createdAt DateTime  
+  updatedAt DateTime  
     
 }
+model CustomerOnlyOneBet {
+  uuid String  @id @unique 
+  numberPhone String @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
 
+  @@map("customers_only_one_bet")
+    
+}
 model Admin {
 
-  uuid  String @id() @unique
+  uuid  String @id @unique
   email  String
-  numberPhone  String
+  numberPhone  String @unique
   password  String
-  accessToken  String
-  forgotPasswordAccessToken  Int
-  forgotPasswordExpiresIn  DateTime  
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
 }
