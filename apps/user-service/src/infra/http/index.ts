@@ -58,6 +58,55 @@ export default function runServer() {
     }
   });
 
+  router.post('/register_customer_oob', async (req: Request, res: Response) => {
+    try {
+      // Validate input data here if needed.
+
+      const user = await customerCtrl.insertOnlyOneBetCtrl(
+        req.body.numberPhone,
+      );
+
+      // return res.status(201).json(user).send();
+      console.log(user)
+      return res.status(200).json({
+        message: "customer created with success",
+        user: user,
+      });
+    } catch (error) {
+      next(error.message); // Pass the error to the error handling middleware
+      res.send(error.message).json();
+      console.log(error.message);
+
+    }
+  });
+
+  // Customer verify route
+  router.post('/verify-code', async (req: Request, res: Response) => {
+    try {
+      // Validate input data here if needed.
+
+      const user = await customerCtrl.authCtrl(
+        {
+          password: req.body.password,
+          numberPhone: req.body.numberPhone
+        }
+      );
+
+      // return res.status(201).json(user).send();
+      console.log(user)
+      return res.status(200).json({
+        message: "customer authenticated with success",
+        user: user,
+      });
+    } catch (error) {
+      next(error.message); // Pass the error to the error handling middleware
+      res.send(error.message).json();
+      console.log(error.message);
+
+    }
+  });
+
+
   // Customer login route
   router.post('/login_customer', async (req: Request, res: Response) => {
     try {
@@ -83,6 +132,7 @@ export default function runServer() {
 
     }
   });
+
 
   // Login route
   router.post('/login', async (req: Request, res: Response) => {
