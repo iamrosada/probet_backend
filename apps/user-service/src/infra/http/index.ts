@@ -185,7 +185,7 @@ export default function runServer() {
     }
   });
 
-  router.get('/:id', async (req, res, next) => {
+  router.get('/customer/:id', async (req, res, next) => {
     try {
       const userId = req.params.id; // Access the ID from the route parameters
       const user = await customerCtrl.FindByIdCtrl(userId);
@@ -208,6 +208,32 @@ export default function runServer() {
   });
 
 
+  router.get('/find_by_number_phone', async (req: Request, res: Response) => {
+
+    console.log(req.body.numberPhone)
+    try {
+
+      const user = await customerCtrl.FindCustomerByPhoneNumberCtrl(
+        req.body.numberPhone
+      );
+
+      console.info(user)
+      if (!user) {
+        // Handle the case where the user is not found
+        return res.status(404).json({
+          message: "Customer not found",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Got customer by Phone with success",
+        user: user,
+      });
+    } catch (error) {
+      next(error); // Pass the error to the error handling middleware
+      console.log(error.message);
+    }
+  });
   // Login route
 
 
