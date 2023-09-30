@@ -31,7 +31,8 @@ export class PrismaCustomersRepository implements CustomerRepository {
   }
 
   async list(): Promise<null | CustomerEntity[]> {
-    return await prisma.customer.findMany({});
+    const allCustomer = await prisma.customer.findMany({});
+    return allCustomer
   }
 
   async findCustomerById(uuid: string): Promise<null | CustomerEntity> {
@@ -88,7 +89,6 @@ export class PrismaCustomersRepository implements CustomerRepository {
     return customer
   }
   async createCustomerOnlyOneBet(customer: CustomerOnlyOneBetEntity): Promise<CustomerOnlyOneBetEntity> {
-    // const storedNumberPhoneHash = await Password.hashPassword(customer.numberPhone);
 
     const customerCreated = await prisma.customerOnlyOneBet.create({
       data: {
