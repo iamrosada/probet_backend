@@ -155,6 +155,23 @@ export default function runServer() {
     }
   });
 
+  router.get('/list_customers', async (req: Request, res: Response) => {
+    try {
+
+      const user = await customerCtrl.FindAllCustomerCtrl();
+
+      return res.status(200).json({
+        message: "got all customers with success",
+        user: user,
+      });
+    } catch (error) {
+      next(error.message); // Pass the error to the error handling middleware
+      res.send(error.message).json();
+      console.log(error.message);
+
+    }
+  });
+
   // Login route
   router.post('/login', async (req: Request, res: Response) => {
     try {
