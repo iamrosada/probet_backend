@@ -1,5 +1,5 @@
 import { CustomerRepository } from "../../application/repositories/customer-repository";
-import { CustomerEntity, CustomerEntitySpeed } from "../../domain/customer-entity/customer";
+import { CustomerEntity, CustomerOnlyOneBetEntity } from "../../domain/customer-entity/customer";
 import { prisma } from "../database/prisma/prisma";
 import { PayloadCustomer, TokenService } from "../core/auth-global-core";
 import { Password } from '../core/password-hash'
@@ -29,6 +29,7 @@ export class PrismaCustomersRepository implements CustomerRepository {
     }
 
   }
+
   async list(): Promise<null | CustomerEntity[]> {
     return await prisma.customer.findMany({});
   }
@@ -72,14 +73,32 @@ export class PrismaCustomersRepository implements CustomerRepository {
     return customer
   }
 
-  async createCustomerFor24h(customer: CustomerEntitySpeed): Promise<void> {
-    await prisma.customerOnlyOneBet.create({
+  async findByNumberPhoneOnlyOneBet(numberPhone: string): Promise<CustomerOnlyOneBetEntity | null> {
+
+    const customer = await prisma.customerOnlyOneBet.findUnique({
+      where: { numberPhone },
+    })
+
+
+
+    if (!customer) {
+      return null
+    }
+
+    return customer
+  }
+  async createCustomerOnlyOneBet(customer: CustomerOnlyOneBetEntity): Promise<CustomerOnlyOneBetEntity> {
+    // const storedNumberPhoneHash = await Password.hashPassword(customer.numberPhone);
+
+    const customerCreated = await prisma.customerOnlyOneBet.create({
       data: {
         uuid: customer.uuid,
         numberPhone: customer.numberPhone,
 
       }
     })
+
+    return customerCreated
 
   }
 
