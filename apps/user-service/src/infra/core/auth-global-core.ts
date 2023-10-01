@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidV4 } from 'uuid'
 import { prisma } from "../database/prisma/prisma";
-import dayjs from "dayjs";
+import dayjs, { unix } from "dayjs";
 
 
 export interface PayloadCustomer {
@@ -81,8 +81,24 @@ export class TokenService {
       throw new Error("Refresh token invalid")
     }
 
+    const refreshTokenExpired = dayjs().isAfter(unix(refreshToken.expireIn))
+
     const customerId = refreshToken.uuid as unknown as PayloadCustomer
     const token = this.createAccessToken(customerId)
+
+    if (refreshTokenExpired) {
+
+      await prisma.refreshToken.delete({
+        where: { customerId: refreshToken.customerId }
+      })
+
+      const newRefreshToken = await this.createRefreshToken(refreshToken.customerId)
+
+      return { token, refreshToken: newRefreshToken }
+
+    }
+
+
 
     return token
   }
