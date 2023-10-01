@@ -1,10 +1,11 @@
 import jwt from "jsonwebtoken";
+import { v4 as uuidV4 } from 'uuid'
+import { prisma } from "../database/prisma/prisma";
+import dayjs from "dayjs";
 
-interface TokenOptions {
-  expiresIn?: string;
-}
+
 export interface PayloadCustomer {
-  numberPhone: string;
+  uuid: string;
 }
 export class TokenService {
   JWT_SECRET: string;
@@ -17,12 +18,12 @@ export class TokenService {
     this.REFRESH_TOKEN_SECRET = "Probet";
   }
 
-  createAccessToken(customer: PayloadCustomer, options: TokenOptions) {
+  createAccessToken(customer: PayloadCustomer) {
     // Default token expiration: 24 hours
-    const expiresIn = options.expiresIn || "24h";
+    const expiresIn = "26s";
 
     const payload = {
-      customer: customer.numberPhone,
+      customer: customer.uuid,
       // Add any other user-related data to the payload as needed
     };
 
@@ -31,19 +32,66 @@ export class TokenService {
     return accessToken;
   }
 
-  createRefreshToken(customer: PayloadCustomer, options: TokenOptions) {
-    // Default token expiration: 30 days
-    const expiresIn = options.expiresIn || "30d";
+  //function to refresh the token
+  async createRefreshToken(customerId: string) {
+    try {
+      const expireIn = dayjs().add(15, "second").unix();
+      const uuid = uuidV4();
 
-    const payload = {
-      customer: customer.numberPhone,
-      // Add any other user-related data to the payload as needed
-    };
+      const customerIsLogged = await prisma.refreshToken.findFirst({
+        where: { customerId }
+      });
 
-    const refreshToken = jwt.sign(payload, this.REFRESH_TOKEN_SECRET, {
-      expiresIn,
-    });
+      console.debug(customerIsLogged)
+      if (customerIsLogged) {
+        const generateRefreshToken = await prisma.refreshToken.update({
+          where: { customerId },
+          data: {
+            customerId,
+            expireIn
+          }
+        });
+        return generateRefreshToken;
+      }
 
-    return refreshToken;
+      const generateRefreshToken = await prisma.refreshToken.create({
+        data: {
+          uuid,
+          customerId,
+          expireIn
+        }
+      });
+
+      return generateRefreshToken
+    } catch (error) {
+      console.error("Error creating or updating refresh token:", error);
+      throw new Error("Failed to create or update refresh token.");
+    }
+  }
+
+
+  async refreshTokenUseCase(refresh_token: string) {
+    const refreshToken = await prisma.refreshToken.findFirst({
+      where: {
+        uuid: refresh_token
+      }
+    })
+
+    if (!refreshToken) {
+      throw new Error("Refresh token invalid")
+    }
+
+    const customerId = refreshToken.uuid as unknown as PayloadCustomer
+    const token = this.createAccessToken(customerId)
+
+    return token
+  }
+
+  async refreshTokenController(refresh_token: string) {
+
+
+    const token = await this.refreshTokenUseCase(refresh_token)
+
+    return token
   }
 }
