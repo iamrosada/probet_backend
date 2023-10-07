@@ -1,0 +1,54 @@
+version: '3'
+services:
+  # Node.js app for user service
+  app_user:
+    build: 
+      context: ./user-service
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./user-service:/usr/app
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://probet:probet@db:5432/probet_authentication
+    networks:
+      - probet_network
+    depends_on:
+      - db
+
+  # Node.js app for purchase service
+  # app_purchase:
+  #   build: 
+  #     context: ./purchases-service
+  #   ports:
+  #     - "4000:4000"
+  #   volumes:
+  #     - ./purchases-service:/usr/app
+  #   environment:
+  #     - NODE_ENV=production
+  #     - DATABASE_URL=postgresql://probet:probet@db:5432/probet_authentication
+  #   networks:
+  #     - probet_network
+  #   depends_on:
+  #     - db
+
+  # PostgreSQL database
+  db:
+    container_name: probet_db
+    image: postgres:latest
+    volumes:
+      - ./data:/data/postgres
+    ports:
+     - 5433:5432
+    environment:
+      POSTGRES_DB: probet_authentication
+      POSTGRES_USER: probet
+      POSTGRES_PASSWORD: probet
+    networks:
+      - probet_network
+
+networks:
+  probet_network:
+    driver: bridge
+
+
