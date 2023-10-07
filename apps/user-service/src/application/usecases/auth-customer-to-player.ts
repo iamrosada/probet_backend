@@ -1,4 +1,4 @@
-import { CustomerEntity, CustomerEntitySpeed } from "../../domain/customer-entity/customer";
+import { CustomerEntity, CustomerOnlyOneBetEntity } from "../../domain/customer-entity/customer";
 import { CustomerRepository } from "../repositories/customer-repository";
 
 
@@ -21,7 +21,7 @@ export class AuthCustomerToPlayUseCase {
   };
 
 
-  public authExpireIn24 = (customer: CustomerEntitySpeed) => {
+  public authExpireIn24 = (customer: CustomerOnlyOneBetEntity) => {
     let customerExist = this.customerRepository.findByNumberPhone(customer.numberPhone)
 
     if (!customerExist) {

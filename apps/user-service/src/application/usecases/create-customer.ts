@@ -1,3 +1,4 @@
+import { CustomerOnlyOneBetValue } from "../../domain/customer-value-only-one-bet/customer-value";
 import { CustomerValue } from "../../domain/customer-value/customer-value";
 import { CustomerRepository } from "../repositories/customer-repository";
 
@@ -10,27 +11,21 @@ export class CustomerUseCase {
     firstName: string,
     lastName: string,
     numberPhone: string,
-    createdAt: Date,
-    updatedAt: Date
+
   ) => {
-
-    let customerExist = await this.customerRepository.findByNumberPhone(numberPhone)
-
-    if (!customerExist) {
 
       const customerValue = new CustomerValue({
         password,
         firstName,
         lastName,
         numberPhone,
-        createdAt,
-        updatedAt,
       });
+
       const customerCreated = await this.customerRepository.create(
         customerValue
       );
       return customerCreated
-    }
+
 
   };
 
@@ -49,35 +44,64 @@ export class CustomerUseCase {
     return customer;
   };
 
-  public registerCustomerAndExpireAfterBet = async (input: InputExpireIn24Speed) => {
-    let customerExist = await this.customerRepository.findByNumberPhone(input.numberPhone)
+  public registerCustomerAndExpireAfterBet = async (numberPhone: string) => {
 
-    if (!customerExist) {
-    const customer = await this.customerRepository.createCustomerFor24h(input);
+    const customerOnlyOneBetValue = new CustomerOnlyOneBetValue(
+      { numberPhone }
+    );
+    const customer = await this.customerRepository.createCustomerOnlyOneBet(customerOnlyOneBetValue);
     return customer;
-    }
-  };
-
-  public AuthCustomerAndExpireAfterBet = async (input: InputExpireIn24SpeedAuth) => {
-
-    let customerExist = await this.customerRepository.findByNumberPhone(input.numberPhone)
-
-    if (!customerExist) {
-      const customer = await this.customerRepository.authExpireIn24(input);
-      return customer;
-    }
-
 
   };
 
-  public AuthCustomerForLongPeriodBet = async (input: InputCustomerAuth) => {
-    let customerExist = await this.customerRepository.findByNumberPhone(input.numberPhone)
+  public AuthCustomerAndExpireAfterBet = async (numberPhone: string) => {
 
-    if (!customerExist) {
-      const customer = await this.customerRepository.auth(input);
-      return customer;
-    }
+    const customer = await this.customerRepository.authExpireIn24({ numberPhone });
+    return customer;
 
   };
+
+  public AuthCustomerForLongPeriodBet = async (
+    password: string,
+    numberPhone: string,
+    customerId?: string
+
+  ) => {
+
+    console.info(password, numberPhone, "AuthCustomerForLongPeriodBet ")
+
+    const customer = await this.customerRepository.auth({ password, numberPhone }, customerId);
+    return customer;
+
+
+  }
+
+
+  public findByNumberPhone = async (numberPhone: string) => {
+    let customerAlreadyExist = await this.customerRepository.findByNumberPhone(numberPhone)
+    return customerAlreadyExist
+  }
+  public findByNumberPhoneOnlyOneBet = async (numberPhone: string) => {
+    let customerAlreadyExist = await this.customerRepository.findByNumberPhoneOnlyOneBet(numberPhone)
+    return customerAlreadyExist
+  }
 }
 
+
+type InputCustomerAuth = {
+  numberPhone?: string;
+  password?: string;
+}
+
+
+
+
+type InputExpireIn24SpeedAuth = {
+  numberPhone: string;
+}
+
+
+
+type InputExpireIn24Speed = {
+  numberPhone: string;
+}

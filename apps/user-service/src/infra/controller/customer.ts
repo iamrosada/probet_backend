@@ -9,7 +9,7 @@ export class CustomerController {
   constructor(private customerUseCase: CustomerUseCase) {
     this.insertCtrl = this.insertCtrl.bind(this);
     this.FindCustomerByPhoneNumberCtrl =
-      this.FindCustomerByPhoneNumberCtrl.bind(this);
+      this.FindCustomerByPhoneNumberCtrl.bind(this)
     this.authCtrl = this.authCtrl.bind(this);
     this.authExpireIn24Ctrl = this.authExpireIn24Ctrl.bind(this);
     // this.FindByDateCtrl = this.FindByDateCtrl.bind(this);

@@ -6,23 +6,25 @@ import { Password } from '../core/password-hash'
 import { InputCustomerAuth, InputExpireIn24SpeedAuth, OutPutCustomerAuth } from "../../interfaces";
 
 export class PrismaCustomersRepository implements CustomerRepository {
-  authExpireIn24(customer: InputExpireIn24SpeedAuth): Promise<OutPutCustomerAuth> {
+  authExpireIn24(customer: InputExpireIn24SpeedAuth, customerId?: string): Promise<OutPutCustomerAuth> {
     try {
       const tokenService = new TokenService();
-      const customerPayload: PayloadCustomer = { numberPhone: customer.numberPhone };
-      const accessToken = tokenService.createAccessToken(customerPayload, { expiresIn: '1h' });
+      const customerPayload: PayloadCustomer = { uuid: customerId };
+      const accessToken = tokenService.createAccessToken(customerPayload);
       return Promise.resolve({ accessToken });
     } catch (error) {
       throw new Error('Erro ao autenticar o cliente: ' + error.message);
     }
   }
 
-  auth(customer: InputCustomerAuth): Promise<OutPutCustomerAuth> {
+  async auth(customer: InputCustomerAuth, customerId?: string): Promise<OutPutCustomerAuth> {
 
     try {
       const tokenService = new TokenService();
-      const customerPayload: PayloadCustomer = { numberPhone: customer.numberPhone };
-      const accessToken = tokenService.createAccessToken(customerPayload, { expiresIn: '1h' });
+      const customerPayload: PayloadCustomer = { uuid: customerId };
+      const accessToken = tokenService.createAccessToken(customerPayload);
+
+
       return Promise.resolve({ accessToken });
     } catch (error) {
       throw new Error('Erro ao autenticar o cliente: ' + error.message);

@@ -3,12 +3,12 @@ export { }
 
 declare global {
   type InputCustomerAuth = {
-    numberPhone: string;
-    password: string;
+    numberPhone?: string;
+    password?: string;
   }
   type InputAdminAuth = {
-    email: string;
-    password: string;
+    email?: string;
+    password?: string;
   }
 
   type OutPutCustomerAuth = {
@@ -29,3 +29,4 @@ declare global {
 
 
 }
+

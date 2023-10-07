@@ -29,7 +29,10 @@ export class AdminController {
     return admin;
   }
 }
-
+type InputAdminAuth = {
+  email: string,
+  password: string,
+}
 type Input = {
   password: string,
   email: string,

@@ -7,11 +7,11 @@ export class AuthAdminToDashboardUseCase {
   public authentication = async (admin: InputAdminAuth) => {
 
     let AdminExist = this.adminRepository.findByEmail(admin.email)
-
     if (!AdminExist) {
-      const response = this.adminRepository.auth({
-        email: admin.email,
-        password: admin.password
+      //@ts-ignores
+
+      const response = this.adminRepository.authAdmin({
+
       });
       return response;
     }
@@ -22,3 +22,8 @@ export class AuthAdminToDashboardUseCase {
 
 }
 
+
+type InputAdminAuth = {
+  email: string,
+  password: string,
+}

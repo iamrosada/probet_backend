@@ -3,6 +3,8 @@ import { app } from "../../server.user";
 import { AdminController } from "../controller/admin.ctrl";
 import { adminCtrl } from "../core/admin-core";
 import { customerCtrl } from "../core/customer-core";
+import { ensureAuthenticated } from "../core/middlewares/ensureAuthenticated";
+import { TokenService } from "../core/auth-global-core";
 
 // Reusable error handling middleware
 function errorHandler(err: Error, req: Request, res: Response, next: any) {
@@ -168,7 +170,7 @@ export default function runServer() {
     }
   });
 
-  router.get('/list_customers', async (req: Request, res: Response) => {
+  router.get('/list_customers', ensureAuthenticated, async (req: Request, res: Response) => {
     try {
 
       const user = await customerCtrl.FindAllCustomerCtrl();
@@ -210,16 +212,13 @@ export default function runServer() {
 
   router.get('/find_by_number_phone', async (req: Request, res: Response) => {
 
-    console.log(req.body.numberPhone)
     try {
 
       const user = await customerCtrl.FindCustomerByPhoneNumberCtrl(
         req.body.numberPhone
       );
 
-      console.info(user)
       if (!user) {
-        // Handle the case where the user is not found
         return res.status(404).json({
           message: "Customer not found",
         });
@@ -231,7 +230,19 @@ export default function runServer() {
       });
     } catch (error) {
       next(error); // Pass the error to the error handling middleware
-      console.log(error.message);
+      //return res.status(500).json({ error: "Internal Server Error", message: error.message }); // Handle errors gracefully
+    }
+  });
+
+
+  router.post("/refresh_token", async (req, res) => {
+    try {
+      const refreshToken = new TokenService();
+      const token = await refreshToken.refreshTokenController(req.body.refresh_token);
+      return res.json({ token }); // Assuming you want to send the token as a JSON response
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      return res.status(500).json({ error: "Internal Server Error", message: error.message }); // Handle errors gracefully
     }
   });
   // Login route

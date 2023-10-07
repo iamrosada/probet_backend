@@ -8,7 +8,7 @@ export interface CustomerEntity {
   updatedAt?: Date;
 }
 
-export interface CustomerEntitySpeed {
+export interface CustomerOnlyOneBetEntity {
   uuid: string;
   numberPhone: string;
   createdAt?: Date;

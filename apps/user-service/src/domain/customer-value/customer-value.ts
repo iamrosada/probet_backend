@@ -1,4 +1,5 @@
 import { CustomerEntity } from "../customer-entity/customer";
+import { v4 as uuid } from "uuid";
 
 
 export class CustomerValue implements CustomerEntity {
@@ -15,11 +16,11 @@ export class CustomerValue implements CustomerEntity {
     firstName,
     lastName,
     numberPhone,
-    createdAt,
-    updatedAt,
+
   }: Omit<
     CustomerEntity,
-    "uuid"
+    "uuid" | "createdAt" |
+    "updatedAt"
   >) {
     //@ts-ignore
     this.uuid = uuid();
@@ -27,7 +28,8 @@ export class CustomerValue implements CustomerEntity {
     this.lastName = lastName;
     this.password = password;
     this.numberPhone = numberPhone;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+    this.createdAt = new Date();
+
+    this.updatedAt = new Date();
   }
 }

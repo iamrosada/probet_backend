@@ -13,7 +13,7 @@ const adminRepo = new PrismaAdminRepository();
  */
 
 const adminUseCase = new AdminUseCase(adminRepo);
-const adminAuthUseCase = new AuthAdminToDashboardUseCase(adminRepo)
+const adminAuthUseCase = new AuthAdminToDashboardUseCase(adminRepo);
 
 /**
  * Iniciar admin Controller
