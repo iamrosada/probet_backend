@@ -1,19 +1,30 @@
 import 'dotenv/config';
-
 import express from 'express';
 import cors from 'cors';
 import runServer from './infra/http';
 
 export const app = express();
 
+
+// Middleware
 app.use(express.json());
 app.use(cors());
 
-app.get('/', (req: Request, res: Response) => {
-  return res.json({ ok: true })
-})
+// Routes
+app.get('/', (req, res) => {
+  res.json({ ok: true });
+});
 
-runServer()
-app.listen(process.env.PORT || 3333, () => {
-  console.log('[USER] Server running');
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+const PORT = process.env.PORT || 3000;
+
+runServer();
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
