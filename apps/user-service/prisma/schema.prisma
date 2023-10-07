@@ -19,6 +19,8 @@ model Customer {
   password String
   createdAt DateTime  
   updatedAt DateTime  
+  
+  refreshToken RefreshToken?
     
 }
 model CustomerOnlyOneBet {
@@ -29,6 +31,16 @@ model CustomerOnlyOneBet {
 
   @@map("customers_only_one_bet")
     
+}
+
+model RefreshToken{
+  uuid      String  @id @default("3628b5b9-3bcc-4089-811c-bdd27fc14bf8")
+  expireIn  Int    @default(2)
+  customer Customer @relation(fields: [customerId],references: [uuid])
+
+  customerId String   @unique @default("3628b5b9-3bcc-4089-811c-bdd27fc54bf8")
+
+  @@map("refresh_token")
 }
 model Admin {
 
