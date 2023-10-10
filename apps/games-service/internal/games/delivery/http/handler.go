@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,27 +23,6 @@ func NewGameHandler(createUC usecase.GameCreateUseCase, getUC usecase.GameGetUse
 		GetUseCase:    getUC,
 		Db:            db,
 	}
-}
-
-func (h *GameHandler) InitializeDatabase() error {
-	createTableSQL := `
-			CREATE TABLE IF NOT EXISTS games (
-					id          INTEGER PRIMARY KEY AUTOINCREMENT,
-					name        TEXT,
-					title       TEXT,
-					model       TEXT,
-					category    TEXT,
-					subcategory TEXT,
-					provider    TEXT,
-					player1     TEXT,
-					player2     TEXT
-			);
-	`
-	_, err := h.Db.Exec(createTableSQL)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (h *GameHandler) CreateGame(c *gin.Context) {
@@ -97,12 +77,19 @@ func (h *GameHandler) CreateGame(c *gin.Context) {
 }
 
 func (h *GameHandler) GetGameByID(c *gin.Context) {
-	id := c.Param("id")
-	// Convert id to string and handle errors
+	// gameID := c.Param("id")
+	gameID := c.Query("id")
+	fmt.Println(gameID)
 
-	game, err := h.GetUseCase.GetGameByID(id)
+	// Execute an SQL query to fetch the game with the specified ID.
+	sqlStmt := "SELECT id, name, title, model, category, subcategory, provider, player1, player2 FROM games WHERE id = ?;"
+	row := h.Db.QueryRow(sqlStmt, gameID)
+
+	var game entity.Game
+
+	err := row.Scan(&game.ID, &game.Name, &game.Title, &game.Model, &game.Category, &game.SubCategory, &game.Provider, &game.Player1, &game.Player2)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, "Game not found")
 		return
 	}
 
