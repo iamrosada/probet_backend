@@ -77,7 +77,6 @@ func (h *GameHandler) CreateGame(c *gin.Context) {
 }
 
 func (h *GameHandler) GetGameByID(c *gin.Context) {
-	// gameID := c.Param("id")
 	gameID := c.Query("id")
 	fmt.Println(gameID)
 
@@ -94,4 +93,18 @@ func (h *GameHandler) GetGameByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, game)
+}
+
+func (h *GameHandler) DeleteGameByID(c *gin.Context) {
+	// Parse the game ID from the URL parameters.
+	gameID := c.Query("id")
+
+	// Execute an SQL query to delete the game with the specified ID.
+	_, err := h.Db.Exec("DELETE FROM games WHERE id = ?;", gameID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Error deleting the game from the database")
+		return
+	}
+
+	c.JSON(http.StatusOK, "Game deleted successfully")
 }
