@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"fmt"
+
 	"github.com/iamrosada/probet_backend/internal/games/entity"
 	"github.com/iamrosada/probet_backend/internal/games/repository"
 )
@@ -10,26 +12,26 @@ type GameCreateUseCase struct {
 }
 
 type CreateGameOutput struct {
-	ID          string
-	Name        string
-	Title       string
-	Model       string
-	Category    string
-	SubCategory string
-	Provider    string
-	Player1     string
-	Player2     string
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Title       string `json:"title"`
+	Model       string `json:"model"`
+	Category    string `json:"category"`
+	SubCategory string `json:"subcategory"`
+	Provider    string `json:"provider"`
+	Player1     string `json:"player1"`
+	Player2     string `json:"player2"`
 }
 
 type CreateGameInput struct {
-	Name        string
-	Title       string
-	Model       string
-	Category    string
-	SubCategory string
-	Provider    string
-	Player1     string
-	Player2     string
+	Name        string `json:"name"`
+	Title       string `json:"title"`
+	Model       string `json:"model"`
+	Category    string `json:"category"`
+	SubCategory string `json:"subcategory"`
+	Provider    string `json:"provider"`
+	Player1     string `json:"player1"`
+	Player2     string `json:"player2"`
 }
 
 func NewGameCreateUseCase(repo repository.GameRepository) *GameCreateUseCase {
@@ -41,6 +43,7 @@ func NewGameCreateUseCase(repo repository.GameRepository) *GameCreateUseCase {
 func (uc *GameCreateUseCase) Execute(name string, title string, model string, category string, subCategory string, provider string, player1 string, player2 string) (*CreateGameOutput, error) {
 	game := entity.NewGame(name, title, model, category, subCategory, provider, player1, player2)
 
+	fmt.Println(game, "inside usecase")
 	err := uc.Repository.Create(game)
 	if err != nil {
 		return nil, err
