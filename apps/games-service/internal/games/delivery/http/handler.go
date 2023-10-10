@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/iamrosada/probet_backend/internal/games/entity"
 	usecase "github.com/iamrosada/probet_backend/internal/games/usecases"
 )
@@ -63,9 +64,29 @@ func (h *GameHandler) CreateGame(c *gin.Context) {
 
 	game := entity.NewGame(input.Name, input.Title, input.Model, input.Category, input.SubCategory, input.Provider, input.Player1, input.Player2)
 
-	// Insert data into the table using a prepared statement.
-	_, err := h.Db.Exec("INSERT INTO games (name, title, model, category, subcategory, provider, player1, player2) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
-		game.Name, game.Title, game.Model, game.Category, game.SubCategory, game.Provider, game.Player1, game.Player2)
+	createTableSQL := `
+			CREATE TABLE IF NOT EXISTS games (
+				  id          TEXT PRIMARY KEY,
+					name        TEXT,
+					title       TEXT,
+					model       TEXT,
+					category    TEXT,
+					subcategory TEXT,
+					provider    TEXT,
+					player1     TEXT,
+					player2     TEXT
+			);
+	`
+	_, err := h.Db.Exec(createTableSQL)
+	if err != nil {
+		panic(err)
+	}
+
+	gameID := uuid.New().String()
+
+	// // Insert data into the table using a prepared statement.
+	_, err = h.Db.Exec("INSERT INTO games (id, name, title, model, category, subcategory, provider, player1, player2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+		gameID, game.Name, game.Title, game.Model, game.Category, game.SubCategory, game.Provider, input.Player1, input.Player2)
 
 	if err != nil {
 		c.JSON(http.StatusConflict, "Data not inserted into the table")
