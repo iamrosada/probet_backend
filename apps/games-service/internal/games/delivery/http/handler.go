@@ -7,10 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/iamrosada/probet_backend/internal/games/entity"
 	usecase "github.com/iamrosada/probet_backend/internal/games/usecases"
-	"gorm.io/gorm"
 )
-
-var d *gorm.DB
 
 type GameHandler struct {
 	CreateUseCase usecase.GameCreateUseCase
@@ -24,6 +21,27 @@ func NewGameHandler(createUC usecase.GameCreateUseCase, getUC usecase.GameGetUse
 		GetUseCase:    getUC,
 		Db:            db,
 	}
+}
+
+func (h *GameHandler) InitializeDatabase() error {
+	createTableSQL := `
+			CREATE TABLE IF NOT EXISTS games (
+					id          INTEGER PRIMARY KEY AUTOINCREMENT,
+					name        TEXT,
+					title       TEXT,
+					model       TEXT,
+					category    TEXT,
+					subcategory TEXT,
+					provider    TEXT,
+					player1     TEXT,
+					player2     TEXT
+			);
+	`
+	_, err := h.Db.Exec(createTableSQL)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (h *GameHandler) CreateGame(c *gin.Context) {
@@ -40,40 +58,21 @@ func (h *GameHandler) CreateGame(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		// return
+		return
 	}
+
 	game := entity.NewGame(input.Name, input.Title, input.Model, input.Category, input.SubCategory, input.Provider, input.Player1, input.Player2)
 
-	// Create a table if it doesn't exist.
-
-	createTableSQL := `
-    CREATE TABLE IF NOT EXISTS games (
-        ID          INTEGER PRIMARY KEY AUTOINCREMENT,
-        Name        TEXT,
-        Title       TEXT,
-        Model       TEXT,
-        Category    TEXT,
-        SubCategory TEXT,
-        Provider    TEXT,
-        Player1     TEXT,
-        Player2     TEXT
-    );
-`
-	_, err := h.Db.Exec(createTableSQL)
-	if err != nil {
-		panic(err)
-	}
-
-	// Insert data into the table.
-	_, err = h.Db.Exec("INSERT INTO games (id, name, title, model, category, subCategory, provider, player1, player2) VALUES (?,?,?,?,?,?,?,?,?)",
-		game.ID, game.Name, game.Title, game.Model, game.Category, game.SubCategory, game.Provider, game.Player1, game.Player2)
+	// Insert data into the table using a prepared statement.
+	_, err := h.Db.Exec("INSERT INTO games (name, title, model, category, subcategory, provider, player1, player2) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+		game.Name, game.Title, game.Model, game.Category, game.SubCategory, game.Provider, game.Player1, game.Player2)
 
 	if err != nil {
+		c.JSON(http.StatusConflict, "Data not inserted into the table")
 		return
 	}
 
 	c.JSON(http.StatusCreated, game)
-
 }
 
 func (h *GameHandler) GetGameByID(c *gin.Context) {
