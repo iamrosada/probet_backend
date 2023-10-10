@@ -108,3 +108,51 @@ func (h *GameHandler) DeleteGameByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, "Game deleted successfully")
 }
+
+func (h *GameHandler) GetGamesByCategory(c *gin.Context) {
+	// Parse the category from the URL parameters.
+	category := c.Query("category")
+
+	rows, err := h.Db.Query("SELECT id, name, title, model, category, subcategory, provider, player1, player2 FROM games WHERE category = ?;", category)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Error querying the database")
+		return
+	}
+	defer rows.Close()
+
+	var games []entity.Game
+	for rows.Next() {
+		var game entity.Game
+		err := rows.Scan(&game.ID, &game.Name, &game.Title, &game.Model, &game.Category, &game.SubCategory, &game.Provider, &game.Player1, &game.Player2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, "Error scanning rows from the database")
+			return
+		}
+		games = append(games, game)
+	}
+
+	c.JSON(http.StatusOK, games)
+}
+
+func (h *GameHandler) ListAllGames(c *gin.Context) {
+	// Execute an SQL query to fetch all games from the database.
+	rows, err := h.Db.Query("SELECT id, name, title, model, category, subcategory, provider, player1, player2 FROM games;")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Error querying the database")
+		return
+	}
+	defer rows.Close()
+
+	var games []entity.Game
+	for rows.Next() {
+		var game entity.Game
+		err := rows.Scan(&game.ID, &game.Name, &game.Title, &game.Model, &game.Category, &game.SubCategory, &game.Provider, &game.Player1, &game.Player2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, "Error scanning rows from the database")
+			return
+		}
+		games = append(games, game)
+	}
+
+	c.JSON(http.StatusOK, games)
+}
