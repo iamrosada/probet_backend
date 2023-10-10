@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,17 +10,19 @@ import (
 	"gorm.io/gorm"
 )
 
-var t gorm.DB
+var d *gorm.DB
 
 type GameHandler struct {
 	CreateUseCase usecase.GameCreateUseCase
 	GetUseCase    usecase.GameGetUseCase
+	Db            *sql.DB
 }
 
-func NewGameHandler(createUC usecase.GameCreateUseCase, getUC usecase.GameGetUseCase) *GameHandler {
+func NewGameHandler(createUC usecase.GameCreateUseCase, getUC usecase.GameGetUseCase, db *sql.DB) *GameHandler {
 	return &GameHandler{
 		CreateUseCase: createUC,
 		GetUseCase:    getUC,
+		Db:            db,
 	}
 }
 
@@ -41,17 +44,15 @@ func (h *GameHandler) CreateGame(c *gin.Context) {
 	}
 	game := entity.NewGame(input.Name, input.Title, input.Model, input.Category, input.SubCategory, input.Provider, input.Player1, input.Player2)
 
-	// game, err := h.CreateUseCase.CreateGame(input.Name, input.Title, input.Model, input.Category, input.SubCategory, input.Provider, input.Player1, input.Player2)
-	// fmt.Println("Value returned!", game)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
+	_, err := h.Db.Exec("INSERT INTO games (id, name, title, model, category, subCategory, provider, player1, player2) VALUES (?,?,?,?,?,?,?,?,?)",
+		game.ID, game.Name, game.Title, game.Model, game.Category, game.SubCategory, game.Provider, game.Player1, game.Player2)
 
-	// if err := t.Create(&game).Error; err != nil {
-	// 	c.JSON(http.StatusBadRequest, "the game not was created")
-	// }
+	if err != nil {
+		return
+	}
+
 	c.JSON(http.StatusCreated, game)
+
 }
 
 func (h *GameHandler) GetGameByID(c *gin.Context) {
