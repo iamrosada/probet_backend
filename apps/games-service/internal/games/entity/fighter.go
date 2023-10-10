@@ -3,23 +3,32 @@ package entity
 import "github.com/google/uuid"
 
 type Fighter struct {
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	Video          string `json:"video"`
-	Image          string `json:"image"`
-	TotalVictories int64  `json:"total_victories"`
-	TotalLosses    int64  `json:"total_losses"`
-	Description    string `json:"description"`
+	ID          string `json:"id"`
+	Player1     Player `json:"player1"`
+	Player2     Player `json:"player2"`
+	TotalBets   int64  `json:"total_bets"`
+	Player1Bets int64  `json:"player1_bets"`
+	Player2Bets int64  `json:"player2_bets"`
+	Winner      string `json:"winner"`
+	// Winner's name (Player1 or Player2)
 }
 
-func NewFight(name, video, image, description string, totalVictories, totalLosses int64) *Fighter {
+// Player represents a player in a fight.
+type Player struct {
+	Name        string `json:"name"`
+	Video       string `json:"video"`
+	Image       string `json:"image"`
+	Description string `json:"description"`
+}
+
+func NewFight(player1, player2 Player) *Fighter {
 	return &Fighter{
-		ID:             uuid.New().String(),
-		Name:           name,
-		Video:          video,
-		Image:          image,
-		TotalVictories: totalVictories,
-		TotalLosses:    totalLosses,
-		Description:    description,
+		ID:          uuid.New().String(),
+		Player1:     player1,
+		Player2:     player2,
+		TotalBets:   0,
+		Player1Bets: 0,
+		Player2Bets: 0,
+		Winner:      "loading", // Winner is empty initially
 	}
 }
