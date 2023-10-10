@@ -44,7 +44,28 @@ func (h *GameHandler) CreateGame(c *gin.Context) {
 	}
 	game := entity.NewGame(input.Name, input.Title, input.Model, input.Category, input.SubCategory, input.Provider, input.Player1, input.Player2)
 
-	_, err := h.Db.Exec("INSERT INTO games (id, name, title, model, category, subCategory, provider, player1, player2) VALUES (?,?,?,?,?,?,?,?,?)",
+	// Create a table if it doesn't exist.
+
+	createTableSQL := `
+    CREATE TABLE IF NOT EXISTS games (
+        ID          INTEGER PRIMARY KEY AUTOINCREMENT,
+        Name        TEXT,
+        Title       TEXT,
+        Model       TEXT,
+        Category    TEXT,
+        SubCategory TEXT,
+        Provider    TEXT,
+        Player1     TEXT,
+        Player2     TEXT
+    );
+`
+	_, err := h.Db.Exec(createTableSQL)
+	if err != nil {
+		panic(err)
+	}
+
+	// Insert data into the table.
+	_, err = h.Db.Exec("INSERT INTO games (id, name, title, model, category, subCategory, provider, player1, player2) VALUES (?,?,?,?,?,?,?,?,?)",
 		game.ID, game.Name, game.Title, game.Model, game.Category, game.SubCategory, game.Provider, game.Player1, game.Player2)
 
 	if err != nil {
