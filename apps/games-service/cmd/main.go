@@ -24,14 +24,20 @@ func main() {
 	}
 	defer db.Close() // espera tudo rodar e depois executa o close
 	var v repository.GameRepository
+	var playerRepo repository.PlayerRepository
+	var fighterRepo usecase.FighterUseCase
 
 	basePath := "/api/v1"
 
 	createUC := usecase.NewGameCreateUseCase(v)
 	getUC := usecase.NewGameGetUseCase(v)
-
+	fighterUC := usecase.FighterUseCase(fighterRepo)
+	playerUC := usecase.NewPlayerUseCase(playerRepo)
 	// Create a handler instance
 	gameHandler := http.NewGameHandler(*createUC, *getUC, db)
+	fighterHandler := http.NewFighterHandler(fighterUC, *playerUC, db)
+
+	playerHandler := http.NewPlayerHandler(*playerUC, db)
 	//Creating  a groupe of routes
 	router := gin.Default()
 
@@ -45,6 +51,9 @@ func main() {
 
 		// New endpoint to get games by category
 
+		v1.POST("/game/fighter/", fighterHandler.CreateFighter)
+		// v1.POST("/game/fighter/", plyerHandler.)
+		v1.POST("/game/player/", playerHandler.CreatePlayer)
 	}
 
 	router.Run(":8080")
